@@ -1,0 +1,120 @@
+CREATE TABLE DBUser(
+	UserID int IDENTITY(1,1) PRIMARY KEY,
+	FirstName nvarchar(20),
+	LastName nvarchar(20),
+	Email nvarchar(20),
+	UserType varchar(20) NOT NULL CHECK (UserType IN ('Employee', 'Admin', 'Business_Partner', 'Faculty'))
+);
+
+CREATE TABLE Employee(
+	EmployeeID int PRIMARY KEY,
+	FOREIGN KEY (EmployeeID) REFERENCES DBUser(UserID) ON DELETE CASCADE
+);
+
+CREATE TABLE DBAdmin(
+	AdminID int PRIMARY KEY,
+	FOREIGN KEY (AdminID) REFERENCES DBUser(UserID) ON DELETE CASCADE
+);
+
+CREATE TABLE Business_Partner(
+	PartnerID int PRIMARY KEY,
+	Business_Name nvarchar(50),
+	BusinessType nvarchar(20),
+	OrgType nvarchar(20),
+	PrimaryContact nvarchar(30),
+	Status_Flag varchar(20) NOT NULL CHECK (Status_Flag IN ('Prospect', 'Intial Contact', 'In Negotitaion', 'Memo Signed', 'Active Partner')),
+	BPStatus nvarchar(20),
+	FOREIGN KEY (PartnerID) REFERENCES DBUser(UserID) ON DELETE CASCADE
+);
+
+CREATE TABLE Faculty(
+	FacultyID int PRIMARY KEY,
+	FOREIGN KEY (FacultyID) REFERENCES DBUser(UserID) ON DELETE CASCADE
+);
+
+CREATE TABLE Message(
+	MessageID int IDENTITY(1,1) PRIMARY KEY,
+	UserID int,
+	FOREIGN KEY (UserID) REFERENCES DBUser(UserID) ON DELETE CASCADE
+);
+
+CREATE TABLE Grants(
+	GrantID int IDENTITY(1,1) PRIMARY KEY,
+	GrantTitle nvarchar(40),
+	Category nvarchar(20) NOT NULL CHECK (Category IN ('Federal', 'State', ' University', 'Business')),
+	FundingAgency int,
+	AwardDate DATE,
+	Amount float,
+	Status nvarchar(20),
+	FOREIGN KEY (FundingAgency) REFERENCES Business_Partner(PartnerID) ON DELETE CASCADE
+);
+
+CREATE TABLE Faculty_Grant(
+	Faculty_GrantID int IDENTITY(1,1) PRIMARY KEY,
+	FacultyID int,
+	GrantID int,
+	FOREIGN KEY (FacultyID) REFERENCES Faculty(FacultyID),
+	FOREIGN KEY (GrantID) REFERENCES Grants(GrantID),
+);
+
+CREATE TABLE Project(
+	ProjectID int IDENTITY(1,1) PRIMARY KEY,
+	ProjectTitle nvarchar(40),
+	DueDate Date,
+);
+
+CREATE TABLE Project(
+	NoteID int IDENTITY(1,1) PRIMARY KEY,
+	ProjectID int,
+	Text_Content nvarchar(50),
+	FOREIGN KEY (ProjectID) REFERENCES Project(ProjectID)
+);
+
+CREATE TABLE Admin_Project(
+	Admin_Project_ID int IDENTITY(1,1) PRIMARY KEY,
+	ProjectID int,
+	AdminID int,
+	FOREIGN KEY (ProjectID) REFERENCES Project(ProjectID),
+	FOREIGN KEY (AdminID) REFERENCES DBAdmin(AdminID)
+);
+
+CREATE TABLE Employee_Project(
+	Employee_Project_ID int IDENTITY(1,1) PRIMARY KEY,
+	ProjectID int,
+	EmployeeID int,
+	FOREIGN KEY (ProjectID) REFERENCES Project(ProjectID),
+	FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID)
+);
+
+CREATE TABLE Task(
+	TaskID int IDENTITY(1,1) PRIMARY KEY,
+	TaskContent nvarchar(40),
+	Employee_Project_ID int,
+	FOREIGN KEY (Employee_Project_ID) REFERENCES Employee_Project(Employee_Project_ID)
+);
+
+
+CREATE TABLE Admin_Business_Partner(
+	Admin_Business_Partner_ID int IDENTITY(1,1) PRIMARY KEY,
+	Meeting_Notes nvarchar(40),
+	Date_Time DateTime,
+	Meeting_Purpose nvarchar(80),
+	AdminID int,
+	PartnerID int
+	FOREIGN KEY (AdminID) REFERENCES DBAdmin(AdminID),
+	FOREIGN KEY (PartnerID) REFERENCES Business_Partner(PartnerID)
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
